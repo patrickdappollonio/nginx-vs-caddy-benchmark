@@ -1,0 +1,5 @@
+localhost
+
+tls /etc/caddy/localhost.pem /etc/caddy/localhost-key.pem
+
+reverse_proxy http://hello:8000

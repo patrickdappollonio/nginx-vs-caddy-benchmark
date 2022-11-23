@@ -1,0 +1,25 @@
+version: '3'
+services:
+  caddy:
+    image: caddy:latest
+    command: "caddy run --config /etc/caddy/Caddyfile"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./localhost.pem:/etc/caddy/localhost.pem
+      - ./localhost-key.pem:/etc/caddy/localhost-key.pem
+    networks:
+      - testing-perf
+    links:
+      - hello
+    ports:
+      - "443:443"
+
+  hello:
+    image: patrickdappollonio/hello-docker
+    networks:
+      - testing-perf
+    expose:
+      - 8000
+
+networks:
+  testing-perf:
