@@ -1,0 +1,29 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./localhost.pem:/etc/nginx/localhost.pem
+      - ./localhost-key.pem:/etc/nginx/localhost-key.pem
+    networks:
+      - testing-perf
+    links:
+      - hello
+    ports:
+      - "443:443"
+
+  hello:
+    image: ghcr.io/patrickdappollonio/docker-http-server
+    working_dir: "/app"
+    environment:
+      - PORT=8000
+    volumes:
+      - ./data.bin:/app/data.bin
+    networks:
+      - testing-perf
+    expose:
+      - 8000
+
+networks:
+  testing-perf:

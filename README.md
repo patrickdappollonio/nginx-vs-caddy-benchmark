@@ -18,6 +18,20 @@ echo "GET https://localhost/" | \
   vegeta report --type=text
 ```
 
+For the 256K test, you can use:
+
+```bash
+echo "GET https://localhost/data.bin" | \
+  vegeta attack --format=http --rate=500 --duration=10s | \
+  vegeta report --type=text
+```
+
+You can generate your own custom 256K file by running:
+
+```bash
+truncate -s 256K data.bin
+```
+
 ## Running it
 
 To run the Caddy environment, run:
@@ -32,11 +46,13 @@ The Nginx version can be run with:
 docker-compose -f docker-compose.nginx.yaml up --remove-orphans
 ```
 
+For the 256K tests, run the `-alt.yaml` files instead. Make sure your test points to the download of the `data.bin` file.
+
 ## My results
 
 These results are on my machine:
 
-### Caddy
+### Caddy (hello-docker container)
 
 ```text
 Requests      [total, rate, throughput]  5000, 500.11, 500.09
@@ -49,13 +65,39 @@ Status Codes  [code:count]               200:5000
 Error Set:
 ```
 
-### Nginx
+### Nginx (hello-docker container)
 
 ```text
 Requests      [total, rate, throughput]  5000, 500.11, 500.09
 Duration      [total, attack, wait]      9.998173726s, 9.997755045s, 418.681µs
 Latencies     [mean, 50, 95, 99, max]    337.36µs, 287.403µs, 523.78µs, 681.93µs, 19.36402ms
 Bytes In      [total, mean]              100000, 20.00
+Bytes Out     [total, mean]              0, 0.00
+Success       [ratio]                    100.00%
+Status Codes  [code:count]               200:5000
+Error Set:
+```
+
+### Caddy (256K container)
+
+```text
+Requests      [total, rate, throughput]  5000, 500.11, 500.06
+Duration      [total, attack, wait]      9.998832175s, 9.99773652s, 1.095655ms
+Latencies     [mean, 50, 95, 99, max]    1.310211ms, 1.208517ms, 1.670566ms, 2.506097ms, 36.576825ms
+Bytes In      [total, mean]              1280000000, 256000.00
+Bytes Out     [total, mean]              0, 0.00
+Success       [ratio]                    100.00%
+Status Codes  [code:count]               200:5000
+Error Set:
+```
+
+### Nginx (256K container)
+
+```text
+Requests      [total, rate, throughput]  5000, 500.08, 499.97
+Duration      [total, attack, wait]      10.000685239s, 9.998377302s, 2.307937ms
+Latencies     [mean, 50, 95, 99, max]    1.536594ms, 990.49µs, 4.165685ms, 7.359351ms, 26.088002ms
+Bytes In      [total, mean]              1280000000, 256000.00
 Bytes Out     [total, mean]              0, 0.00
 Success       [ratio]                    100.00%
 Status Codes  [code:count]               200:5000
@@ -83,4 +125,16 @@ Release:        22.04
 Codename:       jammy
 ```
 
-Looking at the data, it seems that Caddy is a bit slower than Nginx.
+Looking at the data, here are the back-of-the-napkin calculations:
+
+| Test                    | hello-docker         | 256K                 |
+| ----------------------- | -------------------- | -------------------- |
+| Caddy (mean)            | 385.502µs            | 1.310211ms           |
+| Nginx (mean)            | 337.36µs             | 1.536594ms           |
+| Delta                   | Nginx is 114% faster | Caddy is 117% faster |
+| Caddy (95th percentile) | 613.057µs            | 1.670566ms           |
+| Nginx (95th percentile) | 523.78µs             | 4.165685ms           |
+| Delta                   | Nginx is 117% faster | Caddy is 249% faster |
+| Caddy (99th percentile) | 811.483µs            | 2.506097ms           |
+| Nginx (99th percentile) | 681.93µs             | 7.359351ms           |
+| Delta                   | Nginx is 119% faster | Caddy is 293% faster |
