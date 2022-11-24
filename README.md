@@ -127,14 +127,59 @@ Codename:       jammy
 
 Looking at the data, here are the back-of-the-napkin calculations:
 
-| Test                    | hello-docker         | 256K                 |
-| ----------------------- | -------------------- | -------------------- |
-| Caddy (mean)            | 385.502µs            | 1.310211ms           |
-| Nginx (mean)            | 337.36µs             | 1.536594ms           |
-| Delta                   | Nginx is 114% faster | Caddy is 117% faster |
-| Caddy (95th percentile) | 613.057µs            | 1.670566ms           |
-| Nginx (95th percentile) | 523.78µs             | 4.165685ms           |
-| Delta                   | Nginx is 117% faster | Caddy is 249% faster |
-| Caddy (99th percentile) | 811.483µs            | 2.506097ms           |
-| Nginx (99th percentile) | 681.93µs             | 7.359351ms           |
-| Delta                   | Nginx is 119% faster | Caddy is 293% faster |
+| Test                    | hello-docker        | 256K                 |
+| ----------------------- | ------------------- | -------------------- |
+| Caddy (mean)            | 385.502µs           | 1.310211ms           |
+| Nginx (mean)            | 337.36µs            | 1.536594ms           |
+| Delta                   | Nginx is 14% faster | Caddy is 17% faster  |
+| Caddy (95th percentile) | 613.057µs           | 1.670566ms           |
+| Nginx (95th percentile) | 523.78µs            | 4.165685ms           |
+| Delta                   | Nginx is 17% faster | Caddy is 149% faster |
+| Caddy (99th percentile) | 811.483µs           | 2.506097ms           |
+| Nginx (99th percentile) | 681.93µs            | 7.359351ms           |
+| Delta                   | Nginx is 19% faster | Caddy is 193% faster |
+
+
+### Additional metrics
+
+These are all run in the same environment.
+
+#### With the improvements of commit `7cb9315c`
+
+**Caddy**
+
+```text
+Requests      [total, rate, throughput]  5000, 500.11, 500.05
+Duration      [total, attack, wait]      9.999007051s, 9.99786179s, 1.145261ms
+Latencies     [mean, 50, 95, 99, max]    1.471049ms, 1.335166ms, 2.087199ms, 2.906458ms, 36.070767ms
+Bytes In      [total, mean]              1280000000, 256000.00
+Bytes Out     [total, mean]              0, 0.00
+Success       [ratio]                    100.00%
+Status Codes  [code:count]               200:5000
+Error Set:
+```
+
+**Nginx**
+
+```text
+Requests      [total, rate, throughput]  5000, 500.07, 500.02
+Duration      [total, attack, wait]      9.999638628s, 9.998658241s, 980.387µs
+Latencies     [mean, 50, 95, 99, max]    1.192198ms, 1.085857ms, 1.83587ms, 2.608383ms, 26.439112ms
+Bytes In      [total, mean]              1280000000, 256000.00
+Bytes Out     [total, mean]              0, 0.00
+Success       [ratio]                    100.00%
+Status Codes  [code:count]               200:5000
+Error Set:
+```
+
+| Test                    | 256K                |
+| ----------------------- | ------------------- |
+| Caddy (mean)            | 1.471049ms          |
+| Nginx (mean)            | 1.192198ms          |
+| Delta                   | Nginx is 23% faster |
+| Caddy (95th percentile) | 2.087199ms          |
+| Nginx (95th percentile) | 1.83587ms           |
+| Delta                   | Nginx is 13% faster |
+| Caddy (99th percentile) | 2.906458ms          |
+| Nginx (99th percentile) | 2.608383ms          |
+| Delta                   | Nginx is 11% faster |
